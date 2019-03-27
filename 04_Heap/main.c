@@ -6,12 +6,19 @@ struct heap {
 
 typedef struct heap heap;
 
+void swap(heap *h, int i, int j) {
+    int x;
+    x = h->array[j];
+    h->array[j] = h->array[i];
+    h->array[i] = x;
+}
+
 //Given an array of element create an Heap
-heap createHeap(int * array, int array_lenght, /*enum type*/) {
+heap createHeap(int * array, int array_lenght /*,enum type*/) {
   heap A;
   A.n = array_lenght;
   //A.type = type;
-  int x =
+  //int x =
   for (int i = A.n/2; i <1; i-- ){
     Heapify(A,i);
   }
@@ -19,6 +26,19 @@ heap createHeap(int * array, int array_lenght, /*enum type*/) {
 }
 
 void Heapify(heap A, int i) {
+  int m = i;
+  int left = getLeftChild(A,i);
+  int right = getRightChild(A,i);
+  if ((is_valid_node(A,left)) && (A.array[j]<=A.array[m]))
+    m = j;
+  if ((is_valid_node(A,right)) && (A.array[j]<=A.array[m]))
+    m = j;
+  if (i != m ){
+    swap(A,i,m);
+    Heapify(A,m);
+  }
+
+
   // if (A.type == 0) minHeapify(A,i);
   // else if (A.type == 1) maxHeapify(A,i);
   // else printf("Problema con il type \n");
@@ -59,7 +79,7 @@ bool is_valid_node(A,i){
 }
 
 int get_root(A){
-  return A.array[0]; 
+  return A.array[0];
 }
 
 
