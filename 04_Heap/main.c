@@ -1,102 +1,91 @@
-struct heap {
-  int * array;
-  int n;
-  enum {MIN,MAX} type;
-};
+#include "heap.h"
+#include "utility.h"
+#include <time.h>
 
-typedef struct heap heap;
+#define NUM_SIZE 5
 
-void swap(heap *h, int i, int j) {
-    int x;
-    x = h->array[j];
-    h->array[j] = h->array[i];
-    h->array[i] = x;
-}
+int main(){
+  int n = 5;
 
-//Given an array of element create an Heap
-heap createHeap(int * array, int array_lenght /*,enum type*/) {
-  heap A;
-  A.n = array_lenght;
-  //A.type = type;
-  //int x =
-  for (int i = A.n/2; i <1; i-- ){
-    Heapify(A,i);
+  /******* Max Heap  *******/
+  int *sourcemax = calloc(n, sizeof(int));
+  for (int i = 0; i < n; i++) sourcemax[i] = n+i;
+  heap maxH = buildHeap(sourcemax,n, MAX);
+  printHeap(&maxH);
+  int max = extractMax(&maxH);
+  printf("The max is %d\n",max );
+  printHeap(&maxH); //heap after extracting the max
+
+  int oldIndex = 2;
+  int newValue = 3;
+  printf("\n\nIncreasing key -> from %d to %d\n", maxH.array[oldIndex], newValue);
+  increaseKey(&maxH,oldIndex,newValue); //value is not bigger
+  printHeap(&maxH); //no changes in the max heap
+
+  newValue = 55;
+  printf("\n\nIncreasing key -> from %d to %d\n", maxH.array[oldIndex], newValue);
+  increaseKey(&maxH,oldIndex,newValue);
+  printHeap(&maxH); //55 insthead 8
+
+  int insertValue = 23;
+  printf("\nAfter inserting %d \n",insertValue );
+  insertHeapMax(&maxH,insertValue);
+  printHeap(&maxH);
+
+  printf("------------------------------------------------------------ \n");
+  /******* Min Heap  *******/
+  int *sourcemin = calloc(n, sizeof(int));
+  for (int i = 0; i < n; i++) sourcemin[i] = n-i+5;
+  heap minH = buildHeap(sourcemin,n, MIN);
+  printHeap(&minH);
+  int min = extractMin(&minH);
+  printf("The min is %d\n",min );
+  printHeap(&minH); //heap after extracting the min
+
+  newValue = 3;
+  printf("\n\nDecreasing key -> from %d to %d\n", minH.array[oldIndex], newValue);
+  decreaseKey(&minH,oldIndex,newValue);
+  printHeap(&minH); //3 insthead 8
+
+  newValue = 55;
+  printf("\n\nDecreasing key -> from %d to %d\n", minH.array[oldIndex], newValue);
+  decreaseKey(&minH,oldIndex,newValue); //value is not smaller
+  printHeap(&minH);
+
+  insertValue = 1;
+  printf("\nAfter inserting %d \n",insertValue );
+  insertHeapMin(&minH, insertValue); //insert number 1
+  printHeap(&minH);
+
+  printf("------------------------------------------------------------ \n");
+
+  /******* HeapSort  *******/
+  struct timespec b_time, e_time;
+  double heapmin, heapmax;
+  int size[NUM_SIZE] = {10000,50000,70000,100000,150000};
+  printf("\nSize\t HeapSortMin\t HeapSortMax\n");
+  for (int j = 0; j < NUM_SIZE; j++) {
+    int n = size[j];
+    int num;
+    int sourceMax[n], sourceMin[n];
+    srand(time(NULL));
+    for (int i = 0; i < n; i++) {
+      num = rand() %100;
+      sourceMax[i] = num;
+      sourceMin[i] = num;
+    }
+
+    clock_gettime(CLOCK_REALTIME, &b_time);
+    heapSortMin(sourceMin,n);
+    clock_gettime(CLOCK_REALTIME, &e_time);
+    heapmin = get_execution_time(b_time,e_time);
+
+    clock_gettime(CLOCK_REALTIME, &b_time);
+    heapSortMax(sourceMax,n);
+    clock_gettime(CLOCK_REALTIME, &e_time);
+    heapmax = get_execution_time(b_time,e_time);
+
+    printf("%d\t %lf\t %lf\n", n,heapmin,heapmax);
   }
-  return A;
-}
-
-void Heapify(heap A, int i) {
-  int m = i;
-  int left = getLeftChild(A,i);
-  int right = getRightChild(A,i);
-  if ((is_valid_node(A,left)) && (A.array[j]<=A.array[m]))
-    m = j;
-  if ((is_valid_node(A,right)) && (A.array[j]<=A.array[m]))
-    m = j;
-  if (i != m ){
-    swap(A,i,m);
-    Heapify(A,m);
-  }
-
-
-  // if (A.type == 0) minHeapify(A,i);
-  // else if (A.type == 1) maxHeapify(A,i);
-  // else printf("Problema con il type \n");
-
-
-
-}
-
-void findMinimum(A) {
-  return A.array[0];
-}
-void extractMin()
-void decreaseKey()
-void insertValue()
-
-int getLeftChild(heap A, int i) {
-  if (A.array[2*i]) return A.array[2*i];
-  else return NULL;
-}
-
-int getRightChild(heap A, int i) {
-  if (return A.array[2*i+1]) return A.array[2*i+1];
-  else return NULL;
-}
-
-int getParent(heap A, int i) {
-  return A.array[i/2];
-}
-
-bool is_root(A,i){
-  if (A.array[i] == A.array[0]) return TRUE;
-  return FALSE;
-}
-
-bool is_valid_node(A,i){
-  if i>=A.n return FALSE;
-  return TRUE;
-}
-
-int get_root(A){
-  return A.array[0];
-}
-
-
-
-
-int main() {
-  int array[10];
-  array[0] = 1;
-  heap prova;
-  prova.array = array;
-  prova.n = 5;
-  prova.type = MAX;
-
-  //perchè warning quando stampo ??
-  // printf("prova.n %d\n", prova.n );
-  // printf("prova.array[0] %d\n", prova.array[0] );
-  // printf("prova.type %d\n", prova.type);
-
   return 0;
 }

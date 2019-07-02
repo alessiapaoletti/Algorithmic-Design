@@ -33,8 +33,7 @@ void sub_matrix_blocks(float **C,
                        float ** B,
                        const size_t B_f_row,
                        const size_t B_f_col,
-                       const size_t n)
-{
+                       const size_t n){
   // for all the rows in the blocks
   for (size_t i=0; i<n; i++) {
 
@@ -66,8 +65,7 @@ void naive_aux(float **C, const size_t C_f_row, const size_t C_f_col,
 void strassen_aux(float **C, const size_t C_f_row, const size_t C_f_col,
                float **A, const size_t A_f_row, const size_t A_f_col,
                float **B, const size_t B_f_row, const size_t B_f_col,
-               const size_t n)
-{
+               const size_t n){
   if (n < (1<<6)) {
     naive_aux(C, C_f_row, C_f_col,
               A, A_f_row, A_f_col,
@@ -256,9 +254,207 @@ void strassen_aux(float **C, const size_t C_f_row, const size_t C_f_col,
     deallocate_matrix(P[i], n2);
   }
 }
-
-void strassen(float **C,
-      float **A, float **B, const size_t n)
-{
+void strassen(float **C, float **A, float **B, const size_t n){
   strassen_aux(C, 0, 0, A, 0, 0, B, 0, 0, n);
+}
+
+void strassen_aux_improved(float **C, const size_t C_f_row, const size_t C_f_col,
+               float **A, const size_t A_f_row, const size_t A_f_col,
+               float **B, const size_t B_f_row, const size_t B_f_col,
+               float **D, const size_t D_f_row, const size_t D_f_col, //added an auxiliary matrix
+               const size_t n){
+
+  //if n < 64  use the naive algorithm
+  if (n < (1<<6)) {
+    naive_aux(C, C_f_row, C_f_col,
+              A, A_f_row, A_f_col,
+              B, B_f_row, B_f_col,
+              n);
+    return;
+  }
+
+  const size_t n2=n/2;
+
+  const size_t C1X = C_f_row;
+  const size_t C2X = C_f_row + n2;
+  const size_t CX1 = C_f_col;
+  const size_t CX2 = C_f_col + n2;
+
+  const size_t A1X = A_f_row;
+  const size_t A2X = A_f_row + n2;
+  const size_t AX1 = A_f_col;
+  const size_t AX2 = A_f_col + n2;
+
+  const size_t B1X = B_f_row;
+  const size_t B2X = B_f_row + n2;
+  const size_t BX1 = B_f_col;
+  const size_t BX2 = B_f_col + n2;
+
+  const size_t D1X = D_f_row;
+  const size_t D2X = D_f_row + n2;
+  const size_t DX1 = D_f_col;
+  const size_t DX2 = D_f_col + n2;
+
+  //use the C matrix (it is already allocated, so we can use it)
+  //use the D matrix (auxiliar one )
+
+  /****** C11  = (P5+P4) -P2 + P6 ******/
+  //P6 = S7 * S8 where S7 = A12 - A22 and S8 = B21 + B22
+  sub_matrix_blocks(C,C2X, CX2, //S7
+                    A,A1X,AX2,
+                    A,A2X,AX2,
+                    n2);
+
+ sum_matrix_blocks(C,C1X, CX2, //S8
+                    B,B2X,BX1,
+                    B,B2X,BX2,
+                    n2);
+
+  strassen_aux_improved(D, D1X, DX1, //P6
+               C, C2X,CX2, //S7
+               C, C1X, CX2, //S8
+               D, D2X, DX2,
+               n2);
+
+//P2 = S2 * B22 , where S2 = A11 + A12
+sum_matrix_blocks(C,C2X, CX2, //S2
+                  A,A1X,AX1,
+                  A,A1X,AX2,
+                  n2);
+
+strassen_aux_improved(C, C1X, CX2, //P2
+             C, C2X,CX2, //S2
+             B, B2X, BX2, //B22
+             D, D2X, DX2,
+             n2);
+//P5 = S5 * S6 where S5 = A11 + A22 and S6 = B11 + B22
+sum_matrix_blocks(C,C2X, CX2, //S5
+                  A,A1X,AX1,
+                  A,A2X,AX2,
+                  n2);
+
+sum_matrix_blocks(C,C2X, CX1, //S6
+                  B,B1X,BX1,
+                  B,B2X,BX2,
+                  n2);
+
+strassen_aux_improved(D, D1X, DX2, //P5
+             C, C2X,CX2, //S5
+             C, C2X, CX1, //S6
+             D, D2X, DX2,
+             n2);
+
+//P4 = A22 * S4 where S4 = B21 - B11
+sub_matrix_blocks(C,C2X, CX2, //S4
+                  B,B2X,BX1,
+                  B,B1X,BX1,
+                  n2);
+
+strassen_aux_improved(D, D2X, DX1, //P4
+             A, A2X, AX2, //A22
+             C, C2X,CX2, //S4
+             D, D2X, DX2,
+             n2);
+
+//P4 + P5
+sum_matrix_blocks(C,C1X, CX1, //P4 + P5
+                  D, D1X, DX2, //P5
+                  D, D2X, DX1, //P4
+                  n2);
+//(P4+P5) - P2
+sub_matrix_blocks(C,C1X, CX1, //(P4+P5)-P2
+                  C,C1X, CX1, //P4 + P5
+                  C, C1X, CX2, //P2
+                  n2);
+
+//((P4+P5)-P2)+ P6
+sum_matrix_blocks(C,C1X, CX1, // ((P4+P5)-P2) +P6
+                  C,C1X, CX1, //(P4+P5)-P2
+                  D, D1X, DX1, //P6
+                  n2);
+
+/****** C12  = P1 + P2 ******/
+//P2 already computed
+
+//P1 = A11 * S1 where S1 = B12 - B22
+sub_matrix_blocks(C,C2X, CX1, //S1
+                  B,B1X, BX2,
+                  B, B2X, BX2,
+                  n2);
+
+strassen_aux_improved(C, C2X, CX2, //P1
+             A, A1X,AX1, //A11
+             C,C2X, CX1, //S1
+             D, D2X, DX2,
+             n2);
+
+sum_matrix_blocks(C,C1X, CX2,
+                 C, C2X, CX2, //P1
+                 C, C1X, CX2, //P2
+                 n2);
+
+/****** C21  = P3 + P4 ******/
+//P4 already computed
+
+//P3 = S3 * B11 where S3 = A21 + A22
+sum_matrix_blocks(C,C2X, CX1, //S3
+                 A, A2X, AX1,
+                 A, A2X, AX2,
+                 n2);
+
+ strassen_aux_improved(D, D1X, DX1, //P3
+              C,C2X, CX1, //S3
+              B,B1X, BX1, //B11
+              D, D2X, DX2,
+              n2);
+ //P3+P4
+ sum_matrix_blocks(C,C2X, CX1,
+                  D, D1X, DX1, //P3
+                  D, D2X, DX1, //P4
+                  n2);
+
+/****** C22  = P5 + P1 - P3 - P7 ******/
+//P5 already computed
+//P1 already computed
+//so we can compute P5 + P1
+sum_matrix_blocks(C,C2X, CX2,
+                 D, D1X, DX2, //P5
+                 C, C2X, CX2, //P1
+                 n2);
+
+//P3 already computed
+//so we can compute (P5+P1) - P3
+sub_matrix_blocks(C,C2X, CX2,
+                 C,C2X, CX2, //P5 + P1
+                 D, D1X, DX1, //P3
+                 n2);
+
+//P7 = S9 * S10 where S9 = A11 - A21 and S10 = B11 + B12
+sub_matrix_blocks(D,D1X, DX1, //S9
+                 A,A1X, AX1,
+                 A, A2X, AX1,
+                 n2);
+
+sum_matrix_blocks(D,D1X, DX2, //S10
+                B, B1X, BX1,
+                B, B1X, BX2,
+                n2);
+
+strassen_aux_improved(D, D2X, DX1, //P7
+             D, D1X, DX1, //S9
+             D, D1X, DX2, //S10
+             D,D2X,DX2,
+             n2);
+
+// ((P5 + P1) - P3) - P7
+sub_matrix_blocks(C, C2X, CX2,
+                  C, C2X, CX2,
+                  D, D2X, DX1, //P7
+                  n2);
+}
+
+void strassen_improved(float **C, float **A, float **B, const size_t n){
+  float **D=allocate_matrix(n,n); //auxiliar matrix
+  strassen_aux_improved(C, 0, 0, A, 0, 0, B, 0, 0, D,0,0, n);
+  deallocate_matrix(D,n);
 }

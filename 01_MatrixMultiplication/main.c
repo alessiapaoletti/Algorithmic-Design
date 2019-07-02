@@ -23,12 +23,12 @@ double get_execution_time(const struct timespec b_time,
                    (e_time.tv_nsec-b_time.tv_nsec)/1E9;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
 
-  const size_t n=1<<11;
-
+  const size_t n=1<<11; // 1 * 2^11
   float **C0=allocate_matrix(n,n);
   float **C1=allocate_matrix(n,n);
+  float **C2=allocate_matrix(n,n); //newMatrix for strassenImproved
   float **A=allocate_matrix(n,n);
   float **B=allocate_matrix(n,n);
 
@@ -40,28 +40,38 @@ int main(int argc, char *argv[]) {
   struct timespec b_time, e_time;
 
   for (size_t i=1; i<=n; i*=2) {
-    printf("%ld", i);
+    printf("%ld\t", i);
 
     clock_gettime(CLOCK_REALTIME, &b_time);
     naive_matrix_mult(C0, A, B, i, i, i, i);
     clock_gettime(CLOCK_REALTIME, &e_time);
-
-    printf("\t%lf", get_execution_time(b_time, e_time));
+    printf("%lf\t", get_execution_time(b_time, e_time));
 
     clock_gettime(CLOCK_REALTIME, &b_time);
     strassen(C1, A, B, i);
     clock_gettime(CLOCK_REALTIME, &e_time);
+    printf("%lf\t", get_execution_time(b_time, e_time));
 
-    printf("\t%lf", get_execution_time(b_time, e_time));
+    clock_gettime(CLOCK_REALTIME, &b_time);
+    strassen_improved(C2, A, B, i);
+    clock_gettime(CLOCK_REALTIME, &e_time);
+    printf("%lf\t", get_execution_time(b_time, e_time));
 
-    printf("\t%d\n", same_matrix(C0, i, i, C1, i, i));
+
+    printf("%d\t", same_matrix(C0, i, i, C1, i, i));
+    printf("%d\n", same_matrix(C0, i, i, C2, i, i)); //test correctness
+
   }
 
 
   deallocate_matrix(C0,n);
   deallocate_matrix(C1,n);
+  deallocate_matrix(C2,n);
   deallocate_matrix(A,n);
   deallocate_matrix(B,n);
+
+
+
 
   return 0;
 }
