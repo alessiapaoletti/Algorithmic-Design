@@ -1,4 +1,11 @@
 #include "../include/heap.h"
+#include <time.h>
+
+double get_execution_time(const struct timespec b_time, const struct timespec e_time){
+  return (e_time.tv_sec-b_time.tv_sec) +
+                   (e_time.tv_nsec-b_time.tv_nsec)/1E9;
+}
+
 
 /***** Array struct and methods *****/
 struct Array {
@@ -199,7 +206,8 @@ void printMatrix(int** matrix, int n_row, int n_col){
 }
 
 int main() {
-
+  struct timespec b_time, e_time;
+  double arrayTime, heapTime;
   int size = 6;
   int** adj_matrix = (int**) malloc(sizeof(int*)*size);
   for (int i = 0; i < size; i++)
@@ -218,54 +226,6 @@ int main() {
   adj_matrix[3][4] = 1;
   adj_matrix[4][5] = 3;
 
-  // adj_matrix[0][1] = 1;
-  // adj_matrix[0][2] = 5;
-  // adj_matrix[1][2] = 2;
-  // adj_matrix[1][3] = 3;
-  // adj_matrix[1][4] = 4;
-  // adj_matrix[2][4] = 3;
-  // adj_matrix[2][5] = 3;
-  // adj_matrix[3][2] = 4;
-  // adj_matrix[3][6] = 5;
-  // adj_matrix[5][4] = 6;
-  // adj_matrix[5][7] = 10;
-  // adj_matrix[6][7] = 5;
-
-
-  //the adj is simmetric, I need to do that
-  // adj_matrix[1][0] = 1;
-  // adj_matrix[2][0] = 5;
-  // adj_matrix[2][1] = 2;
-  // adj_matrix[3][1] = 3;
-  // adj_matrix[4][1] = 4;
-  // adj_matrix[4][2] = 3;
-  // adj_matrix[5][2] = 3;
-  // adj_matrix[2][3] = 4;
-  // adj_matrix[6][3] = 5;
-  // adj_matrix[4][5] = 6;
-  // adj_matrix[7][5] = 10;
-  // adj_matrix[7][6] = 5;
-
-
-
-  // adj_matrix[0][1] = 3;
-  // adj_matrix[0][2] = 1;
-  // adj_matrix[1][2] = 7;
-  // adj_matrix[1][3] = 5;
-  // adj_matrix[1][4] = 1;
-  // adj_matrix[2][3] = 2;
-  // adj_matrix[3][4] = 7;
-  //
-  // adj_matrix[1][0] = 3;
-  // adj_matrix[2][0] = 1;
-  // adj_matrix[2][1] = 7;
-  // adj_matrix[3][1] = 5;
-  // adj_matrix[4][1] = 1;
-  // adj_matrix[3][2] = 2;
-  // adj_matrix[4][3] = 7;
-
-
-
   Graph g;
   g.num_vertex=size;
   g.adj_list = adj_matrix;
@@ -274,11 +234,21 @@ int main() {
   printMatrix(adj_matrix,size,size);
 
   printf("\n\n**** Array solution ****\n");
+  clock_gettime(CLOCK_REALTIME, &b_time);
   dijkstraArray(&g, 0);
+  clock_gettime(CLOCK_REALTIME, &e_time);
+  arrayTime = get_execution_time(b_time,e_time);
+  printf("Time= %lf\n",arrayTime );
   printGraph(&g);
 
+
+
   printf("\n**** Heap solution ****\n");
+  clock_gettime(CLOCK_REALTIME, &b_time);
   dijkstraHeap(&g, 0);
+  clock_gettime(CLOCK_REALTIME, &e_time);
+  heapTime = get_execution_time(b_time,e_time);
+  printf("Time = %lf\n",heapTime );
   printGraph(&g);
 
 	return 0;
