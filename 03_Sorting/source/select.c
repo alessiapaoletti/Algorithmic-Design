@@ -8,8 +8,8 @@
 int selectPivot(int* A, int l, int r)
 {
   //if I have only one chunck -> return its median
-	if(r-l<5){
-		insertionSortbegin(A,l,r);
+  if(r-l<5){
+    insertionSortbegin(A,l,r);
 		return (l+r)/2; //return the index of the median
 	}
 
