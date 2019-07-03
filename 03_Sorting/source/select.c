@@ -4,18 +4,13 @@
 #include "../include/sorting.h"
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
-
-int selectPivot(int* A, int l, int r)
-{
-  //if I have only one chunck -> return its median
+int selectPivot(int* A, int l, int r){
   if(r-l<5){
     insertionSortbegin(A,l,r);
-		return (l+r)/2; //return the index of the median
-	}
-
-	int n_chunck = ((r-l)/5)+1;
-
-	for(int i=0;i<n_chunck;i++) {
+    return (l+r)/2; //return the index of the median
+  }
+  int n_chunck = ((r-l)/5)+1;
+  for(int i=0;i<n_chunck;i++) {
     int startIndex = 5 * i + l;
     //for the endIndex I have to be aware of the last chunck (can be not full)
     int endIndex;
@@ -24,17 +19,16 @@ int selectPivot(int* A, int l, int r)
     insertionSortbegin(A, startIndex, endIndex);
   }
 
-	for(int i=0;i<n_chunck;i++){
+  for(int i=0;i<n_chunck;i++){
     //put the medians at the begin of each chunck
     int idx2 = MIN(5*i + l + 2, r-1);
     swap(&A[l+i], &A[idx2]);
   }
 
   //recursion until I have one chunck
-	int res = selectPivot(A, l, l+n_chunck);
-	return res;
+  int res = selectPivot(A, l, l+n_chunck);
+  return res;
 }
-
 
 /* Partition given the pivot and able to deal with the duplicates,
 the duplicates are randomly assigned on the left or on the right */
