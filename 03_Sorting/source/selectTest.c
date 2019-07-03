@@ -7,22 +7,24 @@
 #include "../include/sorting.h"
 
 int main() {
+
+  struct timespec b_time, e_time;
   int n = 12;
-  int *A = (int *) malloc(sizeof(int) * n);
+  int* A = (int*)malloc(sizeof(int) * n);
+  for(int j = 0; j < n ; j++)
+   A[j] = n-j+10;
 
-  /* Initialize the array */
-  for (size_t i = 0; i < n; i++) {
-    A[i] = n-i+10;
+  for (int j = 0; j < n; j++) {
+    int index = j+1;
+    clock_gettime(CLOCK_REALTIME, &b_time);
+    int selected = myselect(A,index , 0, n - 1);
+    clock_gettime(CLOCK_REALTIME, &e_time);
+    printf("%dth element=%d \t time =%lf\n\n", index, selected, get_execution_time(b_time, e_time));
   }
-  printf("The array is: "); printArray(A,n);
 
-  int *C = (int*)malloc(sizeof(int)*n);
-  C = copyArray(A,n);
-  insertionSort(C, n);
-  printArray(C,n);
-
-  for (int i = 0; i < n; i++)
-    printf("the %d-th smallest element is %d (should be %d)\n", i, A[myselect(A,i,0,n-1,n)], C[i]);
+  insertionSort(A, n);
+  printArray(A,n);
+  free(A);
 
   return 0;
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 
 
+
 void copyPartialArray(int* A1 , const int*A2 , const int start, const int n){
 	for (int i = start; i < start+n; i++)
     A1[i-start]=A2[i];
@@ -62,3 +63,61 @@ int* copyArray(int const * src, size_t len){
    memcpy(p, src, len * sizeof(int));
    return p;
 }
+
+struct Node {
+  double value;
+  struct Node * next;
+};
+typedef struct Node Node;
+
+void swapNode( Node *a, Node *b){
+		double temp = a->value;
+		a->value = b->value;
+		b->value = temp;
+}
+
+/* Auxiliar function to print a Bucket in bucketSort */
+void printBucket(Node* const head){
+		if(!head) return;
+    Node *aux = head;
+    while (aux->next){
+        printf("%f ", aux->value);
+        aux = aux->next;
+    }
+		printf("%f\n", aux->value );
+ }
+
+ size_t listSize(Node* const head){
+ 	size_t size = 0;
+ 	if(!head) return size;
+ 	Node *aux = head;
+ 	while (aux->next) {
+ 		aux=aux->next;
+ 		size++;
+ 	}
+ 	size++;
+ 	return size;
+ }
+
+/*Auxilar functions for the list for the bucketSort */
+ Node* append(Node *head, const double value){
+   Node *newNode = (Node*) malloc(sizeof(Node));
+   newNode->value = value;
+   newNode->next = NULL;
+
+   if (head){
+     Node *aux = head;
+     while (aux->next) aux = aux->next;
+     aux->next = newNode;
+   }
+   else head = newNode;
+
+   return head;
+ }
+
+ double getValueList(Node * head, int j){
+   Node *aux = head;
+   int idx = 0;
+   while (idx++ < j ) aux = aux->next;
+   return aux-> value;
+ }

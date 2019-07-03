@@ -16,19 +16,20 @@ void insertionSort(int *A, int n) {
   }
 }
 
-void insertionSortbegin(int *A, int begin, int n){
-  int i,j,key;
-  for (j=begin; j<=begin+n-1; j++){
-    key = A[j];
-    i = j-1;
-    while (i>=begin && A[i]>key){
-      A[i+1] = A[i];
-      i = i-1;
+//Insertion Sort given begin and end position
+void insertionSortbegin(int* A, int start, int end)
+{
+    int j;
+    for(int i=start+1;i<end;i++)
+    {
+        j=i;
+        while(j>start && A[j]<A[j-1])
+        {
+            swap(&A[j],&A[j-1]);
+            j=j-1;
+        }
     }
-    A[i+1] = key;
-  }
 }
-
 
 int partitionPivot(int *A, int l, int r,int pivot){
   int i,j;
@@ -83,39 +84,11 @@ void radixSort(int *array, int n)
         countingSort(array,auxiliar_array, n, exp);
 }
 
-struct Node {
-  double value;
-  struct Node * next;
-};
-typedef struct Node Node;
-
-void printBucket(Node* const head){
-		if(!head) return;
-    Node *aux = head;
-    while (aux->next){
-        printf("%f ", aux->value);
-        aux = aux->next;
-    }
-		printf("%f\n", aux->value );
- }
-
- size_t listSize(Node* const head){
- 	size_t size = 0;
- 	if(!head) return size;
- 	Node *aux = head;
- 	while (aux->next) {
- 		aux=aux->next;
- 		size++;
- 	}
- 	size++;
- 	return size;
- }
-
- void swapNode( Node *a, Node *b){
-     double temp = a->value;
-     a->value = b->value;
-     b->value = temp;
- }
+// struct Node {
+//   double value;
+//   struct Node * next;
+// };
+// typedef struct Node Node;
 
 Node* bubbleSort( Node *start){
      int swapped;
@@ -144,30 +117,6 @@ Node* bubbleSort( Node *start){
      while (swapped);
      return start;
  }
-
-
-Node* append(Node *head, const double value){
-
-  Node *newNode = (Node*) malloc(sizeof(Node));
-  newNode->value = value;
-  newNode->next = NULL;
-
-  if (head){
-    Node *aux = head;
-    while (aux->next) aux = aux->next;
-    aux->next = newNode;
-  }
-  else head = newNode;
-
-  return head;
-}
-
-double getValueList(Node * head, int j){
-  Node *aux = head;
-  int idx = 0;
-  while (idx++ < j ) aux = aux->next;
-  return aux-> value;
-}
 
 void bucketSort(double *array, int n)
 {

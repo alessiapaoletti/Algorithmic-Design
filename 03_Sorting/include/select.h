@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utility.h"
-void insertionSortbegin(int *A, int begin, int end);
-int selectPivot(int *A, int start, int end);
-int myselect(int *A, int i, int l, int r, const int n);
+
+int myselect(int* A, int i, int left, int right);
+int partitionNew(int* array, int begin, int end, int pivot);
+int selectPivot(int* array, int begin, int end);
+
+
 
 #endif //__SELECT__
