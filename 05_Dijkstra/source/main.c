@@ -36,15 +36,12 @@ void arraySwap(Node **a, Node **b) { //to swap 2 nodes
 
 void relaxArray(Node* u, Node* v, int w){
     if(u->distance + w < v->distance){
-        v->distance = u->distance + w; // the update is simpler in the array implementation
+        v->distance = u->distance + w;
         v->prev_node = u;
     }
 }
 
 void arrayRemove(Array *q, int i) {
-  //swap the element in the index i with the last one
-  //so we can simply decrease the size and "delete" (lost the connection)
-  //with the last element
   arraySwap(&q->A[i], &q->A[q->size - 1]);
   q->size--; //decrease the size
 }
